@@ -1,27 +1,56 @@
-import { useEffect, useState } from 'react';
-import { supabase } from './supabaseClient';
+import { AuthProvider, useAuth } from './useAuth';
+import LoginPage from './LoginPage';
 
-function App() {
-  const [status, setStatus] = useState('Connexion à Supabase...');
+function AppContent() {
+  const { session, profile, loading, signOut } = useAuth();
 
-  useEffect(() => {
-    async function testConnection() {
-      try {
-        const { data, error } = await supabase.auth.getSession();
-        if (error) throw error;
-        setStatus('✅ Connexion Supabase OK — ' + (data.session ? 'session active' : 'aucune session'));
-      } catch (err) {
-        setStatus('❌ Erreur : ' + err.message);
-      }
-    }
-    testConnection();
-  }, []);
+  if (loading) {
+    return (
+      <div style={{ padding: '2rem', fontFamily: 'system-ui', textAlign: 'center' }}>
+        Chargement…
+      </div>
+    );
+  }
+
+  if (!session) return <LoginPage />;
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'system-ui' }}>
-      <h1>EKE Course Management</h1>
-      <p>{status}</p>
+    <div style={{ padding: '2rem', fontFamily: 'system-ui', maxWidth: '800px', margin: '0 auto' }}>
+      <h1>🥋 EKE Course Management</h1>
+      <p>✅ Connecté en tant que : <strong>{profile?.full_name}</strong></p>
+      <p>📧 Email : {session.user.email}</p>
+      <p>👤 Rôle : <strong>{profile?.role}</strong> {profile?.role === 'admin' && '👑'}</p>
+      <p>🎨 Couleur : <span style={{
+        display: 'inline-block',
+        width: '20px',
+        height: '20px',
+        background: profile?.color,
+        borderRadius: '50%',
+        verticalAlign: 'middle',
+      }}></span></p>
+      <button
+        onClick={signOut}
+        style={{
+          marginTop: '1rem',
+          padding: '0.5rem 1rem',
+          background: 'black',
+          color: 'white',
+          border: 'none',
+          borderRadius: '0.25rem',
+          cursor: 'pointer',
+        }}
+      >
+        🚪 Déconnexion
+      </button>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
