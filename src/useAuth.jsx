@@ -9,45 +9,66 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Charger la session au démarrage
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) fetchProfile(session.user.id);
-      else setLoading(false);
-    });
+    let mounted = true;
 
-    // Écouter les changements d'auth
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+    // Timeout de sécurité : si getSession ne répond pas en 5s, on débloque l'UI
+    const safetyTimeout = setTimeout(() => {
+      if (mounted) {
+        console.warn('[useAuth] getSession timeout — forcing loading=false');
+        setLoading(false);
+      }
+    }, 5000);
+
+    async function init() {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!mounted) return;
         setSession(session);
-        if (session) await fetchProfile(session.user.id);
-        else {
-          setProfile(null);
+        if (session) {
+          await fetchProfile(session.user.id);
+        }
+      } catch (err) {
+        console.error('[useAuth] init error:', err);
+      } finally {
+        if (mounted) {
+          clearTimeout(safetyTimeout);
           setLoading(false);
         }
       }
+    }
+
+    async function fetchProfile(userId) {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
+      if (mounted && !error) setProfile(data);
+    }
+
+    init();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (_event, session) => {
+        if (!mounted) return;
+        setSession(session);
+        if (session) await fetchProfile(session.user.id);
+        else setProfile(null);
+        setLoading(false);
+      }
     );
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      clearTimeout(safetyTimeout);
+      subscription.unsubscribe();
+    };
   }, []);
 
-  async function fetchProfile(userId) {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single();
-    if (!error) setProfile(data);
-    setLoading(false);
-  }
+  const signIn = (email, password) =>
+    supabase.auth.signInWithPassword({ email, password });
 
-  const signIn = async (email, password) => {
-    return await supabase.auth.signInWithPassword({ email, password });
-  };
-
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
+  const signOut = () => supabase.auth.signOut();
 
   return (
     <AuthContext.Provider value={{ session, profile, loading, signIn, signOut }}>
