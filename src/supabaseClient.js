@@ -9,4 +9,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+    // Désactive le NavigatorLock qui pose problème en dev (StrictMode) et parfois en prod
+    lock: async (name, acquireTimeout, fn) => fn(),
+  },
+});
