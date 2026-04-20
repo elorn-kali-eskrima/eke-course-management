@@ -1,9 +1,15 @@
+import { useState } from 'react';
 import { AuthProvider, useAuth } from './useAuth';
 import LoginPage from './LoginPage';
-import ProgramViewer from './ProgramViewer';
+import BottomNav from './BottomNav';
+import SessionsTab from './SessionsTab';
+import HistoryTab from './HistoryTab';
+import StatsTab from './StatsTab';
+import ConfigTab from './ConfigTab';
 
 function AppContent() {
   const { session, profile, loading, signOut } = useAuth();
+  const [tab, setTab] = useState('sessions');
 
   if (loading) {
     return (
@@ -14,6 +20,8 @@ function AppContent() {
   }
 
   if (!session) return <LoginPage />;
+
+  const isAdmin = profile?.role === 'admin';
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -37,7 +45,7 @@ function AppContent() {
             <div className="hidden sm:flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full" style={{ background: profile?.color }} />
               <span className="text-sm">{profile?.full_name}</span>
-              {profile?.role === 'admin' && (
+              {isAdmin && (
                 <span className="text-[10px] bg-white text-black px-2 py-0.5 rounded uppercase tracking-wider font-bold">
                   👑 Admin
                 </span>
@@ -53,9 +61,15 @@ function AppContent() {
         </div>
       </header>
 
-      <main>
-        <ProgramViewer />
+      {/* Contenu principal - pb-24 pour laisser de la place pour la bottom nav */}
+      <main className="pb-24">
+        {tab === 'sessions' && <SessionsTab />}
+        {tab === 'history' && <HistoryTab />}
+        {tab === 'stats' && <StatsTab />}
+        {tab === 'config' && isAdmin && <ConfigTab />}
       </main>
+
+      <BottomNav tab={tab} setTab={setTab} isAdmin={isAdmin} />
     </div>
   );
 }
