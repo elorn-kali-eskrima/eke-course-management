@@ -26,17 +26,19 @@ function AppContent() {
   return (
     <div className="min-h-screen bg-stone-50">
       {/* Header */}
-      <header className="bg-black text-white sticky top-0 z-40 border-b border-white/10">
-        <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full border border-white/30 flex items-center justify-center">
-              <span className="text-xs font-black tracking-tighter">EKE</span>
-            </div>
+<header className="bg-black text-white sticky top-0 z-40 border-b border-white/10">
+        <div className="max-w-5xl mx-auto px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <img
+              src="/logo-eke-blanc.png"
+              alt="Elorn Kali Eskrima"
+              className="h-20 w-auto object-contain flex-shrink-0"
+            />
             <div>
-              <div className="text-sm font-black tracking-tight" style={{ fontFamily: "'Bebas Neue', Impact, sans-serif", letterSpacing: '0.08em' }}>
+              <div className="text-xl font-black tracking-tight leading-tight" style={{ fontFamily: "'Bebas Neue', Impact, sans-serif", letterSpacing: '0.08em' }}>
                 ELORN KALI ESKRIMA
               </div>
-              <div className="text-[10px] uppercase tracking-[0.25em] text-white/50">
+              <div className="text-xs uppercase tracking-[0.25em] text-white/50 mt-0.5">
                 Course Management
               </div>
             </div>

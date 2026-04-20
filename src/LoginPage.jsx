@@ -28,21 +28,19 @@ export default function LoginPage() {
       padding: '1rem',
     }}>
       <div style={{ width: '100%', maxWidth: '400px' }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '80px',
-            height: '80px',
-            marginBottom: '1.5rem',
-            borderRadius: '50%',
-            border: '2px solid rgba(255,255,255,0.2)',
-            background: 'rgba(255,255,255,0.05)',
-          }}>
-            <span style={{ color: 'white', fontSize: '1.5rem', fontWeight: 900 }}>EKE</span>
-          </div>
-          <h1 style={{ color: 'white', fontSize: '1.75rem', fontWeight: 900, margin: 0, letterSpacing: '0.05em' }}>
+       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+          <img
+            src="/logo-eke-blanc.png"
+            alt="Elorn Kali Eskrima"
+            style={{
+              width: '200px',
+              height: '200px',
+              objectFit: 'contain',
+              margin: '0 auto 1.5rem',
+              display: 'block',
+            }}
+          />
+          <h1 style={{ color: 'white', fontSize: '1.75rem', fontWeight: 900, margin: 0, letterSpacing: '0.05em', fontFamily: "'Bebas Neue', Impact, sans-serif" }}>
             ELORN KALI ESKRIMA
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '0.75rem', letterSpacing: '0.3em', textTransform: 'uppercase', marginTop: '0.5rem' }}>
