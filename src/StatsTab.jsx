@@ -3,12 +3,16 @@ import { Search, Check, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip } from 'recharts';
 import { useSessions } from './useSessions';
 import { useProgram } from './useProgram';
+import { useSeasons } from './useSeasons';
 
 export default function StatsTab() {
   const { sessions, loading: loadingSessions, error: sessionsError } = useSessions();
   const { program, tiers, loading: loadingProgram, error: programError } = useProgram();
+  const { seasons } = useSeasons();
 
-  const [period, setPeriod] = useState('year');
+  const activeSeason = seasons.find(s => s.is_active);
+  const [filterSeason, setFilterSeason] = useState('active');
+  const [period, setPeriod] = useState('all'); // par défaut "tout dans la saison"
   const [instructorFilter, setInstructorFilter] = useState('all');
 
   // Liste des instructeurs présents dans les séances
@@ -20,10 +24,17 @@ export default function StatsTab() {
     return Array.from(map.values());
   }, [sessions]);
 
-  // Filtrage des séances selon période + instructeur
+// Détermination de l'ID de saison à filtrer
+  const seasonIdToFilter =
+    filterSeason === 'all' ? null
+    : filterSeason === 'active' ? activeSeason?.id
+    : filterSeason;
+
+  // Filtrage des séances : saison + période + instructeur
   const filtered = useMemo(() => {
     const now = new Date();
     return sessions.filter(s => {
+      if (seasonIdToFilter && s.season_id !== seasonIdToFilter) return false;
       if (instructorFilter !== 'all' && s.instructor_id !== instructorFilter) return false;
       const d = new Date(s.date);
       const diffDays = (now - d) / (1000 * 60 * 60 * 24);
@@ -33,7 +44,7 @@ export default function StatsTab() {
       if (period === 'year' && diffDays > 365) return false;
       return true;
     });
-  }, [sessions, period, instructorFilter]);
+  }, [sessions, period, instructorFilter, seasonIdToFilter]);
 
   // KPIs
   const totalSessions = filtered.length;
@@ -73,7 +84,7 @@ export default function StatsTab() {
     });
   }, [program, workedSkills]);
 
-  // Données mensuelles (6 derniers mois)
+// Données mensuelles (6 derniers mois)
   const monthsData = useMemo(() => {
     const months = {};
     const now = new Date();
@@ -83,12 +94,13 @@ export default function StatsTab() {
       months[key] = { month: d.toLocaleDateString('fr-FR', { month: 'short' }), sessions: 0 };
     }
     sessions.forEach(s => {
+      if (seasonIdToFilter && s.season_id !== seasonIdToFilter) return;
       if (instructorFilter !== 'all' && s.instructor_id !== instructorFilter) return;
       const key = s.date.slice(0, 7);
       if (months[key]) months[key].sessions++;
     });
     return Object.values(months);
-  }, [sessions, instructorFilter]);
+  }, [sessions, instructorFilter, seasonIdToFilter]);
 
   // Radar par catégorie
   const radarData = useMemo(() => {
@@ -115,7 +127,8 @@ export default function StatsTab() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dayCounts = {};
-    sessions.forEach(s => {
+sessions.forEach(s => {
+      if (seasonIdToFilter && s.season_id !== seasonIdToFilter) return;
       if (instructorFilter !== 'all' && s.instructor_id !== instructorFilter) return;
       dayCounts[s.date] = (dayCounts[s.date] || 0) + 1;
     });
@@ -139,8 +152,8 @@ export default function StatsTab() {
       }
       weeks.push(week);
     }
-    return weeks;
-  }, [sessions, instructorFilter]);
+return weeks;
+  }, [sessions, instructorFilter, seasonIdToFilter]);
 
   const heatColor = (n) => {
     if (n === 0) return '#f5f5f4';
@@ -174,18 +187,29 @@ export default function StatsTab() {
         </div>
       </div>
 
-      {/* Filtres */}
+{/* Filtres */}
       <div className="bg-white border border-black/10 rounded-lg p-3 mb-6 flex flex-wrap gap-2">
+        <select
+          value={filterSeason}
+          onChange={e => setFilterSeason(e.target.value)}
+          className="px-3 py-2 border border-black/15 rounded text-sm bg-white focus:outline-none focus:border-black font-semibold"
+        >
+          <option value="active">📅 Saison active{activeSeason ? ` (${activeSeason.name})` : ''}</option>
+          <option value="all">📅 Toutes les saisons</option>
+          {seasons.filter(s => !s.is_active).map(s => (
+            <option key={s.id} value={s.id}>📅 {s.name}</option>
+          ))}
+        </select>
         <select
           value={period}
           onChange={e => setPeriod(e.target.value)}
           className="px-3 py-2 border border-black/15 rounded text-sm bg-white focus:outline-none focus:border-black"
         >
-          <option value="week">📅 Semaine</option>
-          <option value="month">📅 Mois</option>
-          <option value="quarter">📅 Trimestre</option>
-          <option value="year">📅 Année</option>
-          <option value="all">📅 Tout</option>
+          <option value="all">⏱️ Tout</option>
+          <option value="week">⏱️ Semaine</option>
+          <option value="month">⏱️ Mois</option>
+          <option value="quarter">⏱️ Trimestre</option>
+          <option value="year">⏱️ Année</option>
         </select>
         <select
           value={instructorFilter}

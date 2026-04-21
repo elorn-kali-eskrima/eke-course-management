@@ -3,12 +3,16 @@ import { ChevronDown, ChevronRight, Trash2, MessageSquare } from 'lucide-react';
 import { useSessions } from './useSessions';
 import { useProgram } from './useProgram';
 import { useAuth } from './useAuth';
+import { useSeasons } from './useSeasons';
 
 export default function HistoryTab() {
   const { sessions, loading, error, deleteSession } = useSessions();
   const { program, tiers } = useProgram();
+  const { seasons } = useSeasons();
   const { profile } = useAuth();
 
+  const activeSeason = seasons.find(s => s.is_active);
+  const [filterSeason, setFilterSeason] = useState('active'); // 'active' | 'all' | <id>
   const [filterInstructor, setFilterInstructor] = useState('all');
   const [filterLevel, setFilterLevel] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
@@ -24,8 +28,15 @@ export default function HistoryTab() {
     return Array.from(map.values());
   }, [sessions]);
 
+// Détermination de l'ID de saison à filtrer
+  const seasonIdToFilter =
+    filterSeason === 'all' ? null
+    : filterSeason === 'active' ? activeSeason?.id
+    : filterSeason;
+
   // Filtrage
   const filtered = sessions.filter(s => {
+    if (seasonIdToFilter && s.season_id !== seasonIdToFilter) return false;
     if (filterInstructor !== 'all' && s.instructor_id !== filterInstructor) return false;
     if (filterLevel !== 'all') {
       const levels = new Set(s.session_skills.map(ss => ss.skill?.category?.level?.id).filter(Boolean));
@@ -67,8 +78,19 @@ export default function HistoryTab() {
         </div>
       </div>
 
-      {/* Filtres */}
+{/* Filtres */}
       <div className="bg-white border border-black/10 rounded-lg p-3 mb-4 flex flex-wrap gap-2">
+        <select
+          value={filterSeason}
+          onChange={e => setFilterSeason(e.target.value)}
+          className="px-3 py-2 border border-black/15 rounded text-sm bg-white focus:outline-none focus:border-black font-semibold"
+        >
+          <option value="active">📅 Saison active{activeSeason ? ` (${activeSeason.name})` : ''}</option>
+          <option value="all">📅 Toutes les saisons</option>
+          {seasons.filter(s => !s.is_active).map(s => (
+            <option key={s.id} value={s.id}>📅 {s.name}</option>
+          ))}
+        </select>
         <select
           value={filterInstructor}
           onChange={e => setFilterInstructor(e.target.value)}

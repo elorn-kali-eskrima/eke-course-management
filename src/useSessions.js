@@ -15,10 +15,10 @@ export function useSessions() {
     async function load() {
       setLoading(true);
       try {
-        const { data, error: err } = await supabase
+const { data, error: err } = await supabase
           .from('sessions')
           .select(`
-            id, date, comment, instructor_id, created_by, created_at,
+            id, date, comment, instructor_id, created_by, created_at, season_id,
             instructor:profiles!sessions_instructor_id_fkey (id, full_name, color),
             session_skills (
               skill:skills (

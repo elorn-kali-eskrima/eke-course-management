@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Edit2, Trash2, X, Check, Info } from 'lucide-react';
 import { useInstructors } from './useInstructors';
 import { useAuth } from './useAuth';
+import SeasonsManager from './SeasonsManager';
 
 const COLOR_PALETTE = [
   '#000000', '#374151', '#7c2d12', '#991b1b', '#dc2626',
@@ -96,6 +97,9 @@ export default function ConfigTab() {
           </div>
         </div>
       </div>
+
+{/* Gestion des saisons */}
+      <SeasonsManager />
 
       {/* Liste des instructeurs */}
       <div className="bg-white border border-black/10 rounded-lg p-4 mb-4">
