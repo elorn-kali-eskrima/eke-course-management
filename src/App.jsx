@@ -57,11 +57,11 @@ function AppContent() {
             </div>
             <button
               onClick={() => window.location.reload()}
-              className="text-xs bg-white/10 hover:bg-white/20 px-2.5 py-1.5 rounded transition flex items-center gap-1"
+              className="hidden sm:flex text-xs bg-white/10 hover:bg-white/20 px-2.5 py-1.5 rounded transition items-center gap-1"
               title="Rafraîchir l'application"
               aria-label="Rafraîchir"
             >
-              🔄 <span className="hidden sm:inline">Actualiser</span>
+              🔄 <span>Actualiser</span>
             </button>
             <button
               onClick={signOut}
