@@ -62,11 +62,11 @@ export default function ConfigTab() {
     }
   };
 
-  if (loading) {
+if (loading && instructors.length === 0) {
     return <div className="p-6 text-center text-black/60">⏳ Chargement…</div>;
   }
-  if (error) {
-    return <div className="p-6 bg-red-50 border border-red-200 rounded-lg text-red-800 max-w-4xl mx-auto">❌ Erreur : {error}</div>;
+  if (error && instructors.length === 0) {
+    return <div className="p-6 bg-red-50 border border-red-200 rounded-lg text-red-800">❌ Erreur : {error}</div>;
   }
 
   return (

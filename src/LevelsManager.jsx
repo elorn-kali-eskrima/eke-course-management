@@ -37,7 +37,7 @@ export default function LevelsManager() {
     setErrorMsg('');
   };
 
-  const save = async () => {
+const save = async () => {
     if (!form.id.trim() || !form.name.trim() || !form.tier_id) {
       setErrorMsg('Tous les champs sont obligatoires');
       return;

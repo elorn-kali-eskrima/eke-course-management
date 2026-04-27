@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from './supabaseClient';
 
 export function useSeasons() {
@@ -28,7 +28,7 @@ export function useSeasons() {
     load();
   }, [reloadKey]);
 
-  const reload = () => setReloadKey(k => k + 1);
+  const reload = useCallback(() => setReloadKey(k => k + 1), []);
 
   const createSeason = async ({ name, start_date, end_date }) => {
     const { error: err } = await supabase
@@ -56,7 +56,6 @@ export function useSeasons() {
     reload();
   };
 
-  // Activer une saison : il faut d'abord désactiver l'actuelle (à cause de l'unique index)
   const activateSeason = async (id) => {
     const current = seasons.find(s => s.is_active);
     if (current && current.id !== id) {

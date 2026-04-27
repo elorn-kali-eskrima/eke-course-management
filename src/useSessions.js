@@ -1,9 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from './supabaseClient';
 
 /**
  * Charge les séances depuis Supabase avec leur instructeur et compétences associées.
- * Fournit aussi une fonction pour supprimer une séance.
  */
 export function useSessions() {
   const [sessions, setSessions] = useState([]);
@@ -15,7 +14,7 @@ export function useSessions() {
     async function load() {
       setLoading(true);
       try {
-const { data, error: err } = await supabase
+        const { data, error: err } = await supabase
           .from('sessions')
           .select(`
             id, date, comment, instructor_id, created_by, created_at, season_id,
@@ -32,7 +31,6 @@ const { data, error: err } = await supabase
           `)
           .order('date', { ascending: false })
           .order('created_at', { ascending: false });
-
         if (err) throw err;
         setSessions(data || []);
         setError(null);
@@ -46,7 +44,7 @@ const { data, error: err } = await supabase
     load();
   }, [reloadKey]);
 
-  const reload = () => setReloadKey(k => k + 1);
+  const reload = useCallback(() => setReloadKey(k => k + 1), []);
 
   const deleteSession = async (sessionId) => {
     const { error: err } = await supabase.from('sessions').delete().eq('id', sessionId);

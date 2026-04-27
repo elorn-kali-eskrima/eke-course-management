@@ -55,7 +55,8 @@ export default function HistoryTab() {
     }
   };
 
-  if (loading) {
+// Bloquer uniquement au tout premier chargement (pas pendant les refresh silencieux)
+  if (loading && sessions.length === 0) {
     return <div className="p-6 text-center text-black/60">⏳ Chargement de l'historique…</div>;
   }
   if (error) {

@@ -17,10 +17,10 @@ export default function SessionsTab() {
   const [savedMsg, setSavedMsg] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
-  if (loading) {
+if (loading && !program) {
     return <div className="p-6 text-center text-black/60">⏳ Chargement du programme…</div>;
   }
-  if (error) {
+  if (error && !program) {
     return <div className="p-6 bg-red-50 border border-red-200 rounded-lg text-red-800">❌ Erreur : {error}</div>;
   }
   if (!program || program.length === 0) {

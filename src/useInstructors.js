@@ -1,9 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { supabase } from './supabaseClient';
 
-/**
- * Charge et gère les profils des instructeurs.
- */
 export function useInstructors() {
   const [instructors, setInstructors] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -31,7 +28,7 @@ export function useInstructors() {
     load();
   }, [reloadKey]);
 
-  const reload = () => setReloadKey(k => k + 1);
+  const reload = useCallback(() => setReloadKey(k => k + 1), []);
 
   const updateInstructor = async (id, updates) => {
     const { error: err } = await supabase

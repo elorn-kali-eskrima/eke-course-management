@@ -186,7 +186,7 @@ return weeks;
     );
   }
 
-  if (loadingSessions || loadingProgram) {
+if ((loadingSessions || loadingProgram) && !program && sessions.length === 0) {
     return <div className="p-6 text-center text-black/60">⏳ Chargement…</div>;
   }
   if (sessionsError || programError) {

@@ -11,7 +11,9 @@ function AppContent() {
   const { session, profile, loading, signOut } = useAuth();
   const [tab, setTab] = useState('sessions');
 
-  if (loading) {
+  // On affiche "Chargement…" uniquement au tout premier démarrage
+  // (quand on ne sait pas encore si l'utilisateur est connecté)
+  if (loading && !session) {
     return (
       <div className="min-h-screen flex items-center justify-center text-black/60">
         Chargement…
@@ -43,7 +45,7 @@ function AppContent() {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+<div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full" style={{ background: profile?.color }} />
               <span className="text-sm">{profile?.full_name}</span>
@@ -53,6 +55,14 @@ function AppContent() {
                 </span>
               )}
             </div>
+            <button
+              onClick={() => window.location.reload()}
+              className="text-xs bg-white/10 hover:bg-white/20 px-2.5 py-1.5 rounded transition flex items-center gap-1"
+              title="Rafraîchir l'application"
+              aria-label="Rafraîchir"
+            >
+              🔄 <span className="hidden sm:inline">Actualiser</span>
+            </button>
             <button
               onClick={signOut}
               className="text-xs bg-white/10 hover:bg-white/20 px-3 py-1.5 rounded transition"
