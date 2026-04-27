@@ -153,7 +153,7 @@ export default function SessionsTab() {
 
       {/* Liste des niveaux avec compétences cochables */}
       <div className="space-y-2 mb-6">
-        {program.map(level => {
+        {program.filter(l => l.is_visible !== false).map(level => {
           const isOpen = expandedLevels[level.id];
           const tierColor = getTierColor(level.tier_id);
           const tierEmoji = getTierEmoji(level.tier_id);

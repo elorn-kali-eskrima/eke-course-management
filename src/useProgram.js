@@ -27,7 +27,7 @@ export function useProgram() {
         const { data: levelsData, error: levelsErr } = await supabase
           .from('levels')
           .select(`
-            id, name, tier_id, sort_order,
+            id, name, tier_id, sort_order, is_visible,
             categories (
               id, name, emoji, sort_order,
               skills (id, name, sort_order)

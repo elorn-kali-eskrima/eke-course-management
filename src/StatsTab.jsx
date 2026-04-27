@@ -63,16 +63,20 @@ export default function StatsTab() {
 
   const workedSkills = useMemo(() => new Set(Object.keys(skillRepetitions)), [skillRepetitions]);
 
-  const totalSkills = useMemo(() => {
-    if (!program) return 0;
-    return program.reduce((sum, lvl) =>
-      sum + lvl.categories.reduce((s, c) => s + c.skills.length, 0), 0);
+// On filtre les niveaux masqués pour les stats : pertinent pour la couverture, la progression, etc.
+  const visibleProgram = useMemo(() => {
+    if (!program) return [];
+    return program.filter(l => l.is_visible !== false);
   }, [program]);
 
+const totalSkills = useMemo(() => {
+    return visibleProgram.reduce((sum, lvl) =>
+      sum + lvl.categories.reduce((s, c) => s + c.skills.length, 0), 0);
+  }, [visibleProgram]);
+
   // Progression par niveau
-  const levelProgress = useMemo(() => {
-    if (!program) return [];
-    return program.map(level => {
+const levelProgress = useMemo(() => {
+    return visibleProgram.map(level => {
       const allSkillIds = level.categories.flatMap(cat => cat.skills.map(sk => sk.id));
       const worked = allSkillIds.filter(id => workedSkills.has(id)).length;
       return {
@@ -82,7 +86,7 @@ export default function StatsTab() {
         pct: allSkillIds.length ? Math.round(worked / allSkillIds.length * 100) : 0,
       };
     });
-  }, [program, workedSkills]);
+  }, [visibleProgram, workedSkills]);
 
 // Données mensuelles (6 derniers mois)
   const monthsData = useMemo(() => {
@@ -103,10 +107,9 @@ export default function StatsTab() {
   }, [sessions, instructorFilter, seasonIdToFilter]);
 
   // Radar par catégorie
-  const radarData = useMemo(() => {
-    if (!program) return [];
+const radarData = useMemo(() => {
     const categoryMap = {};
-    program.forEach(level => {
+    visibleProgram.forEach(level => {
       level.categories.forEach(cat => {
         const key = cat.name;
         if (!categoryMap[key]) categoryMap[key] = { total: 0, worked: 0, emoji: cat.emoji };
@@ -119,8 +122,8 @@ export default function StatsTab() {
     return Object.entries(categoryMap).map(([name, v]) => ({
       category: `${v.emoji || ''} ${name}`,
       coverage: v.total ? Math.round(v.worked / v.total * 100) : 0,
-    }));
-  }, [program, workedSkills]);
+}));
+  }, [visibleProgram, workedSkills]);
 
   // Heatmap annuelle (53 semaines)
   const heatmap = useMemo(() => {
@@ -310,9 +313,9 @@ return weeks;
         )}
       </Card>
 
-      {/* Liste détaillée des compétences */}
+{/* Liste détaillée des compétences */}
       <SkillChecklist
-        program={program}
+        program={visibleProgram}
         tiers={tiers}
         skillRepetitions={skillRepetitions}
         workedSkills={workedSkills}

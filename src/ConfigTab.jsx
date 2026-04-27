@@ -4,6 +4,7 @@ import { useInstructors } from './useInstructors';
 import { useAuth } from './useAuth';
 import SeasonsManager from './SeasonsManager';
 import TiersManager from './TiersManager';
+import LevelsManager from './LevelsManager';
 
 
 const COLOR_PALETTE = [
@@ -105,6 +106,9 @@ export default function ConfigTab() {
 
       {/* Gestion des tiers */}
       <TiersManager />
+
+      {/* Gestion des niveaux */}
+      <LevelsManager />
 
       {/* Liste des instructeurs */}
       <div className="bg-white border border-black/10 rounded-lg p-4 mb-4">
