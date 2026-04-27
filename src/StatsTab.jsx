@@ -4,6 +4,8 @@ import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, RadarChart, PolarGrid
 import { useSessions } from './useSessions';
 import { useProgram } from './useProgram';
 import { useSeasons } from './useSeasons';
+import StatsExport from './StatsExport';
+import { Printer } from 'lucide-react';
 
 export default function StatsTab() {
   const { sessions, loading: loadingSessions, error: sessionsError } = useSessions();
@@ -14,6 +16,7 @@ export default function StatsTab() {
   const [filterSeason, setFilterSeason] = useState('active');
   const [period, setPeriod] = useState('all'); // par défaut "tout dans la saison"
   const [instructorFilter, setInstructorFilter] = useState('all');
+  const [exportMode, setExportMode] = useState(false);
 
   // Liste des instructeurs présents dans les séances
   const instructors = useMemo(() => {
@@ -167,6 +170,22 @@ return weeks;
 
   const getTierColor = (tierId) => tiers.find(t => t.id === tierId)?.color || '#000';
 
+// Mode export PDF
+  if (exportMode) {
+    return (
+      <StatsExport
+        sessions={sessions}
+        program={program}
+        tiers={tiers}
+        seasons={seasons}
+        filterSeason={filterSeason}
+        instructorFilter={instructorFilter}
+        period={period}
+        onClose={() => setExportMode(false)}
+      />
+    );
+  }
+
   if (loadingSessions || loadingProgram) {
     return <div className="p-6 text-center text-black/60">⏳ Chargement…</div>;
   }
@@ -222,6 +241,14 @@ return weeks;
           <option value="all">👥 Tous instructeurs</option>
           {instructors.map(i => <option key={i.id} value={i.id}>{i.full_name}</option>)}
         </select>
+
+        <button
+          onClick={() => setExportMode(true)}
+          className="ml-auto px-3 py-2 bg-black text-white text-xs uppercase tracking-wider font-bold rounded hover:bg-stone-800 flex items-center gap-2"
+          title="Générer un rapport PDF avec les filtres actuels"
+        >
+          <Printer size={14} /> Exporter PDF
+        </button>
       </div>
 
       {/* KPIs */}
