@@ -1,14 +1,10 @@
 import { useState, useMemo } from 'react';
 import { ChevronDown, ChevronRight, Trash2, MessageSquare } from 'lucide-react';
-import { useSessions } from './useSessions';
-import { useProgram } from './useProgram';
 import { useAuth } from './useAuth';
-import { useSeasons } from './useSeasons';
+import { useData } from './useData';
 
 export default function HistoryTab() {
-  const { sessions, loading, error, deleteSession } = useSessions();
-  const { program, tiers } = useProgram();
-  const { seasons } = useSeasons();
+  const { sessions, loadingSessions: loading, errorSessions: error, deleteSession, program, tiers, seasons } = useData();
   const { profile } = useAuth();
 
   const activeSeason = seasons.find(s => s.is_active);

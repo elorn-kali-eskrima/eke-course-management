@@ -2,10 +2,12 @@ import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, Check, X, ChevronUp, ChevronDown } from 'lucide-react';
 import { supabase } from './supabaseClient';
 import { categoriesApi, skillsApi } from './useCategoriesAdmin';
+import { useData } from './useData';
 
 const EMOJI_SUGGESTIONS = ['🥋', '🥢', '🥍', '🔪', '👊', '👣', '⚔️', '🌀', '🤼', '🙏', '🎯', '⭐', '🔥', '💪', '🛡️', '🏹'];
 
 export default function LevelContentEditor({ levelId }) {
+  const { reloadProgram } = useData();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
@@ -58,6 +60,7 @@ export default function LevelContentEditor({ levelId }) {
       setNewCatEmoji('🥋');
       setAddingCategory(false);
       reload();
+      await reloadProgram()
     } catch (err) {
       alert('Erreur : ' + err.message);
     }

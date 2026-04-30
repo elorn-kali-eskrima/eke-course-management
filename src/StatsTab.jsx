@@ -1,16 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Search, Check, X, ChevronDown, ChevronRight } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip } from 'recharts';
-import { useSessions } from './useSessions';
-import { useProgram } from './useProgram';
-import { useSeasons } from './useSeasons';
+import { useData } from './useData';
 import StatsExport from './StatsExport';
 import { Printer } from 'lucide-react';
 
 export default function StatsTab() {
-  const { sessions, loading: loadingSessions, error: sessionsError } = useSessions();
-  const { program, tiers, loading: loadingProgram, error: programError } = useProgram();
-  const { seasons } = useSeasons();
+  const { sessions, program, tiers, seasons, loadingSessions, loadingProgram, errorSessions: sessionsError, errorProgram: programError } = useData();
 
   const activeSeason = seasons.find(s => s.is_active);
   const [filterSeason, setFilterSeason] = useState('active');

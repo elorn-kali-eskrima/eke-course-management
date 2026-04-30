@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import { Plus, Edit2, Trash2, X, Check, Star, AlertTriangle } from 'lucide-react';
 import { useSeasons } from './useSeasons';
+import { useData } from './useData';
 
 export default function SeasonsManager() {
   const { seasons, loading, error, createSeason, updateSeason, deleteSeason, activateSeason } = useSeasons();
-
+  const { reloadSeasons, reloadProgram, reloadInstructors } = useData();
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ name: '', start_date: '', end_date: '' });
@@ -64,6 +65,7 @@ export default function SeasonsManager() {
         });
         setEditingId(null);
       }
+      await reloadSeasons(); 
     } catch (err) {
       setErrorMsg(err.message);
     }
@@ -77,6 +79,8 @@ export default function SeasonsManager() {
     if (!confirm(`Supprimer la saison "${season.name}" ?\n\n⚠️ Toutes les séances liées à cette saison seront aussi supprimées.`)) return;
     try {
       await deleteSeason(season.id);
+      await reloadSeasons();
+
     } catch (err) {
       alert('Erreur : ' + err.message);
     }
@@ -87,6 +91,7 @@ export default function SeasonsManager() {
     if (!confirm(`Activer la saison "${season.name}" ?\n\nLes nouvelles séances créées y seront automatiquement rattachées.`)) return;
     try {
       await activateSeason(season.id);
+      await reloadSeasons();
     } catch (err) {
       alert('Erreur : ' + err.message);
     }

@@ -2,13 +2,14 @@ import { useState } from 'react';
 import { Plus, Edit2, Trash2, X, ChevronUp, ChevronDown, Eye, EyeOff } from 'lucide-react';
 import { useLevelsAdmin } from './useLevelsAdmin';
 import { useTiers } from './useTiers';
+import { useData } from './useData';
 import LevelContentEditor from './LevelContentEditor';
 import { ChevronRight } from 'lucide-react';
 
 export default function LevelsManager() {
   const { levels, loading, error, createLevel, updateLevel, deleteLevel, moveLevel, countSessionsForLevel } = useLevelsAdmin();
   const { tiers } = useTiers();
-
+  const { reloadProgram } = useData();
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ id: '', name: '', tier_id: '' });
@@ -57,6 +58,7 @@ const save = async () => {
         });
         setEditingId(null);
       }
+      await reloadProgram()
     } catch (err) {
       setErrorMsg(err.message);
     }
@@ -73,6 +75,7 @@ const save = async () => {
     if (!confirm(msg)) return;
     try {
       await deleteLevel(level.id);
+      await reloadProgram()
     } catch (err) {
       alert('Erreur : ' + err.message);
     }
@@ -81,6 +84,7 @@ const save = async () => {
   const toggleVisibility = async (level) => {
     try {
       await updateLevel(level.id, { is_visible: !level.is_visible });
+      await reloadProgram()
     } catch (err) {
       alert('Erreur : ' + err.message);
     }
@@ -89,6 +93,7 @@ const save = async () => {
   const handleMove = async (level, direction) => {
     try {
       await moveLevel(level.id, direction);
+      await reloadProgram()
     } catch (err) {
       alert('Erreur : ' + err.message);
     }

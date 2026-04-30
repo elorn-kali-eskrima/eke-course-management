@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, X, Check } from 'lucide-react';
 import { useTiers } from './useTiers';
+import { useData } from './useData';
 import { supabase } from './supabaseClient';
 
 const COLOR_PALETTE = [
@@ -13,7 +14,7 @@ const EMOJI_SUGGESTIONS = ['🟢', '🟡', '🟠', '🔴', '🟣', '🔵', '⚫'
 
 export default function TiersManager() {
   const { tiers, loading, error, createTier, updateTier, deleteTier } = useTiers();
-
+  const { reloadProgram } = useData();
   const [adding, setAdding] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [form, setForm] = useState({ id: '', color: '#000000', emoji: '⚪' });
@@ -76,6 +77,7 @@ export default function TiersManager() {
         });
         setEditingId(null);
       }
+      await reloadProgram();
     } catch (err) {
       setErrorMsg(err.message);
     }
@@ -90,6 +92,7 @@ export default function TiersManager() {
     if (!confirm(`Supprimer le tier "${tier.id}" ?`)) return;
     try {
       await deleteTier(tier.id);
+      await reloadProgram();
     } catch (err) {
       alert('Erreur : ' + err.message);
     }

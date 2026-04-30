@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronRight, Check, MessageSquare } from 'lucide-react';
-import { useProgram } from './useProgram';
+import { useData } from './useData';
 import { supabase } from './supabaseClient';
 import { useAuth } from './useAuth';
 
 export default function SessionsTab() {
-  const { program, tiers, loading, error } = useProgram();
-  const { profile } = useAuth();
+const { program, tiers, loadingProgram: loading, errorProgram: error } = useData();
+const { profile } = useAuth();
 
   // État du formulaire
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);

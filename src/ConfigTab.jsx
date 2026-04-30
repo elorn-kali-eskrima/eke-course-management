@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Edit2, Trash2, X, Check, Info } from 'lucide-react';
-import { useInstructors } from './useInstructors';
+import { useData } from './useData';
 import { useAuth } from './useAuth';
 import SeasonsManager from './SeasonsManager';
 import TiersManager from './TiersManager';
@@ -14,7 +14,7 @@ const COLOR_PALETTE = [
 ];
 
 export default function ConfigTab() {
-  const { instructors, loading, error, updateInstructor, deleteInstructor } = useInstructors();
+  const { instructors, loadingInstructors: loading, errorInstructors: error, updateInstructor, deleteInstructor, reloadInstructors } = useData();
   const { profile } = useAuth();
 
   const [editingId, setEditingId] = useState(null);
@@ -44,6 +44,7 @@ export default function ConfigTab() {
         role: form.role,
       });
       setEditingId(null);
+      await reloadInstructors()
     } catch (err) {
       setErrorMsg(err.message);
     }
@@ -57,6 +58,7 @@ export default function ConfigTab() {
     if (!confirm(`Supprimer le profil de ${inst.full_name} ?\n\nNote : Cela supprime uniquement le profil dans l'app. Le compte d'authentification doit être supprimé séparément dans Supabase Dashboard.`)) return;
     try {
       await deleteInstructor(inst.id);
+      await reloadInstructors()
     } catch (err) {
       alert('Erreur : ' + err.message);
     }

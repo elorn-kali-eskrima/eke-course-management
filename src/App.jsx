@@ -6,23 +6,12 @@ import SessionsTab from './SessionsTab';
 import HistoryTab from './HistoryTab';
 import StatsTab from './StatsTab';
 import ConfigTab from './ConfigTab';
+import { DataProvider } from './useData';
+
 
 function AppContent() {
-  const { session, profile, loading, signOut } = useAuth();
+  const { profile, signOut } = useAuth();
   const [tab, setTab] = useState('sessions');
-
-  // On affiche "Chargement…" uniquement au tout premier démarrage
-  // (quand on ne sait pas encore si l'utilisateur est connecté)
-  if (loading && !session) {
-    return (
-      <div className="min-h-screen flex items-center justify-center text-black/60">
-        Chargement…
-      </div>
-    );
-  }
-
-  if (!session) return <LoginPage />;
-
   const isAdmin = profile?.role === 'admin';
 
   return (
@@ -89,8 +78,30 @@ function AppContent() {
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <DataWrapper />
     </AuthProvider>
+  );
+}
+
+// Wrapper qui n'instancie le DataProvider QUE si l'utilisateur est connecté
+// (sinon on essaierait de charger des données sans permissions)
+function DataWrapper() {
+  const { session, loading } = useAuth();
+
+  if (loading && !session) {
+    return (
+      <div className="min-h-screen flex items-center justify-center text-black/60">
+        Chargement…
+      </div>
+    );
+  }
+
+  if (!session) return <LoginPage />;
+
+  return (
+    <DataProvider>
+      <AppContent />
+    </DataProvider>
   );
 }
 
