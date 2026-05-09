@@ -2,6 +2,8 @@ import { useState, useMemo } from 'react';
 import { ChevronDown, ChevronRight, Trash2, MessageSquare } from 'lucide-react';
 import { useAuth } from './useAuth';
 import { useData } from './useData';
+import SessionEditor from './SessionEditor';
+import { Edit2 } from 'lucide-react';
 
 export default function HistoryTab() {
   const { sessions, loadingSessions: loading, errorSessions: error, deleteSession, program, tiers, seasons } = useData();
@@ -12,6 +14,7 @@ export default function HistoryTab() {
   const [filterInstructor, setFilterInstructor] = useState('all');
   const [filterLevel, setFilterLevel] = useState('all');
   const [expandedId, setExpandedId] = useState(null);
+  const [editingId, setEditingId] = useState(null);
 
   const getTierColor = (tierId) => tiers.find(t => t.id === tierId)?.color || '#000';
 
@@ -169,43 +172,63 @@ export default function HistoryTab() {
                 </button>
 
                 {isOpen && (
-                  <div className="border-t border-black/10 p-4 bg-stone-50/50 space-y-3">
-                    {/* Commentaire */}
-                    {session.comment && (
-                      <div className="border-l-4 border-black/40 pl-3 py-2 bg-white/80 rounded-r">
-                        <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-black/50 mb-1 flex items-center gap-1">
-                          <MessageSquare size={11} /> Note
-                        </div>
-                        <div className="text-sm italic text-black/80">{session.comment}</div>
+                  <div className="border-t border-black/10 p-4 bg-stone-50/50">
+                    {editingId === session.id ? (
+                      // Mode édition
+                      <SessionEditor
+                        session={session}
+                        onSave={() => setEditingId(null)}
+                        onCancel={() => setEditingId(null)}
+                      />
+                    ) : (
+                      // Mode lecture
+                      <div className="space-y-3">
+                        {/* Commentaire */}
+                        {session.comment && (
+                          <div className="border-l-4 border-black/40 pl-3 py-2 bg-white/80 rounded-r">
+                            <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-black/50 mb-1 flex items-center gap-1">
+                              <MessageSquare size={11} /> Note
+                            </div>
+                            <div className="text-sm italic text-black/80">{session.comment}</div>
+                          </div>
+                        )}
+
+                        {/* Compétences groupées */}
+                        {Object.values(grouped).map(({ level, categories }) => {
+                          const tierColor = getTierColor(level.tier_id);
+                          return Object.values(categories).map(({ cat, skills }) => (
+                            <div key={`${level.id}-${cat.id}`}>
+                              <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-black/50 mb-1.5 flex items-center gap-2">
+                                <span className="px-1.5 py-0.5 rounded text-white text-[9px]" style={{ background: tierColor }}>{level.id}</span>
+                                <span>{cat.emoji || '🥋'} {cat.name}</span>
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {skills.map(sk => (
+                                  <span key={sk.id} className="text-xs bg-white border border-black/10 px-2 py-1 rounded">{sk.name}</span>
+                                ))}
+                              </div>
+                            </div>
+                          ));
+                        })}
+
+                        {/* Actions : Modifier + Supprimer */}
+                        {canDelete && (
+                          <div className="flex flex-wrap gap-3 mt-4 pt-3 border-t border-black/10">
+                            <button
+                              onClick={() => setEditingId(session.id)}
+                              className="flex items-center gap-2 text-xs text-black/70 hover:text-black hover:bg-stone-100 px-3 py-1.5 rounded border border-black/15"
+                            >
+                              <Edit2 size={14} /> ✏️ Modifier
+                            </button>
+                            <button
+                              onClick={() => handleDelete(session.id)}
+                              className="flex items-center gap-2 text-xs text-red-600 hover:text-red-800 hover:bg-red-50 px-3 py-1.5 rounded border border-red-200"
+                            >
+                              <Trash2 size={14} /> 🗑️ Supprimer
+                            </button>
+                          </div>
+                        )}
                       </div>
-                    )}
-
-                    {/* Compétences groupées */}
-                    {Object.values(grouped).map(({ level, categories }) => {
-                      const tierColor = getTierColor(level.tier_id);
-                      return Object.values(categories).map(({ cat, skills }) => (
-                        <div key={`${level.id}-${cat.id}`}>
-                          <div className="text-[10px] uppercase tracking-[0.2em] font-bold text-black/50 mb-1.5 flex items-center gap-2">
-                            <span className="px-1.5 py-0.5 rounded text-white text-[9px]" style={{ background: tierColor }}>{level.id}</span>
-                            <span>{cat.emoji || '🥋'} {cat.name}</span>
-                          </div>
-                          <div className="flex flex-wrap gap-1.5">
-                            {skills.map(sk => (
-                              <span key={sk.id} className="text-xs bg-white border border-black/10 px-2 py-1 rounded">{sk.name}</span>
-                            ))}
-                          </div>
-                        </div>
-                      ));
-                    })}
-
-                    {/* Suppression */}
-                    {canDelete && (
-                      <button
-                        onClick={() => handleDelete(session.id)}
-                        className="flex items-center gap-2 text-xs text-red-600 hover:text-red-800 mt-3"
-                      >
-                        <Trash2 size={14} /> 🗑️ Supprimer la séance
-                      </button>
                     )}
                   </div>
                 )}

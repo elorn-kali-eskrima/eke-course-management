@@ -144,10 +144,42 @@ export function DataProvider({ children }) {
     ]).then(() => console.log('[useData] All loaded'));
   }, [loadProgram, loadSessions, loadSeasons, loadInstructors]);
 
-  // ============ MUTATIONS SESSIONS ============
+// ============ MUTATIONS SESSIONS ============
   const deleteSession = async (sessionId) => {
     const { error: err } = await supabase.from('sessions').delete().eq('id', sessionId);
     if (err) throw err;
+    await loadSessions();
+  };
+
+  /**
+   * Met à jour une session existante (date, comment, compétences cochées).
+   * Stratégie : on met à jour les champs simples, puis on remplace toutes les compétences cochées.
+   */
+  const updateSession = async (sessionId, { date, comment, skillIds }) => {
+    // 1. Mettre à jour les champs simples de la session
+    const { error: errUpdate } = await supabase
+      .from('sessions')
+      .update({ date, comment })
+      .eq('id', sessionId);
+    if (errUpdate) throw errUpdate;
+
+    // 2. Supprimer toutes les anciennes compétences cochées de cette session
+    const { error: errDelete } = await supabase
+      .from('session_skills')
+      .delete()
+      .eq('session_id', sessionId);
+    if (errDelete) throw errDelete;
+
+    // 3. Insérer les nouvelles compétences cochées
+    if (skillIds && skillIds.length > 0) {
+      const rows = skillIds.map(skill_id => ({ session_id: sessionId, skill_id }));
+      const { error: errInsert } = await supabase
+        .from('session_skills')
+        .insert(rows);
+      if (errInsert) throw errInsert;
+    }
+
+    // 4. Recharger les sessions pour mettre à jour l'UI
     await loadSessions();
   };
 
@@ -211,8 +243,9 @@ export function DataProvider({ children }) {
     reloadSessions: loadSessions,
     reloadSeasons: loadSeasons,
     reloadInstructors: loadInstructors,
-    // Mutations sessions
+// Mutations sessions
     deleteSession,
+    updateSession,
     // Mutations seasons
     createSeason, updateSeason, deleteSeason, activateSeason,
     // Mutations instructors
