@@ -5,6 +5,8 @@ import { useAuth } from './useAuth';
 import SeasonsManager from './SeasonsManager';
 import TiersManager from './TiersManager';
 import LevelsManager from './LevelsManager';
+import BackupManager from './BackupManager';
+
 
 
 const COLOR_PALETTE = [
@@ -111,6 +113,9 @@ if (loading && instructors.length === 0) {
 
       {/* Gestion des niveaux */}
       <LevelsManager />
+
+      {/* Sauvegarde & Restauration */}
+      <BackupManager />
 
       {/* Liste des instructeurs */}
       <div className="bg-white border border-black/10 rounded-lg p-4 mb-4">
